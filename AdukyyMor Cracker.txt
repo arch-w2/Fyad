@@ -1,0 +1,213 @@
+-- [ LeakD ] Sоurсе Соԁе Dеоbfuѕсаtеԁ Ву LeаκD
+-- [ Source ] https://discord.gg/AwGHNh7Z7T
+
+local str = "2.0.1"
+local flag = true
+
+local function fn(arg, arg2)
+	local str2 = string.format("[AdukyyMor %s] [%s]", "2.0.1", arg2 or "INFO")
+
+	if flag then
+		warn(str2 .. " " .. tostring(arg))
+	end
+
+	return arg
+end
+
+local tbl = {
+	writefile = type(writefile) == "function",
+	appendfile = type(appendfile) == "function",
+	readfile = type(readfile) == "function",
+	makefolder = type(makefolder) == "function",
+	isfolder = type(isfolder) == "function",
+	isfile = type(isfile) == "function",
+	httpservice = false,
+	game = type(game) == "userdata",
+	loadstring = type(loadstring) == "function",
+	load = type(load) == "function",
+	clonefunction = type(clonefunction) == "function",
+	hookfunction = type(hookfunction) == "function",
+	newcclosure = type(newcclosure) == "function",
+	getrawmetatable = type(getrawmetatable) == "function",
+	setreadonly = type(setreadonly) == "function",
+	hookmetamethod = type(hookmetamethod) == "function",
+	checkcaller = type(checkcaller) == "function",
+}
+
+if tbl.game then
+	pcall(function()
+		tbl.httpservice = true
+		game:GetService("HttpService")
+	end)
+end
+
+local tbl2 = { memory = {}, use_filesystem = tbl.writefile and tbl.makefolder }
+
+local function fn2()
+	if not tbl.makefolder or not tbl.isfolder then
+		return false
+	end
+
+	for _, v in ipairs({ "AdukyyMor", "AdukyyMor/sources" }) do
+		if not pcall(function()
+			if not isfolder(v) then
+				makefolder(v)
+			end
+		end) then
+			return false
+		end
+	end
+
+	return true
+end
+
+tbl2.filesystem_ok = fn2()
+
+local function fn3(arg, arg2)
+	if tbl2.use_filesystem and tbl2.filesystem_ok then
+		if pcall(function()
+			writefile(arg, arg2)
+		end) then
+			print("[AdukyyMor 2.0.1] [FILE] File saved: " .. arg)
+			return true
+		end
+	end
+
+	table.insert(tbl2.memory, { path = arg, content = arg2, time = os.time() })
+	return true
+end
+
+local function fn4(arg, arg2)
+	if tbl2.use_filesystem and tbl2.filesystem_ok then
+		if pcall(function()
+			appendfile(arg, arg2)
+		end) then
+			return true
+		end
+	end
+
+	table.insert(tbl2.memory, { path = arg, content = arg2, append = true, time = os.time() })
+	return true
+end
+
+local concat = table.concat
+local tbl3 = {}
+local str2 = "-- Started: " .. os.date("%Y-%m-%d %H:%M:%S")
+local str3 = "-- Filesystem: " .. tostring(tbl2.filesystem_ok)
+tbl3[1] = "-- AdukyyMor Logger v" .. str
+tbl3[2] = str2
+tbl3[3] = str3
+tbl3[4] = ""
+fn3("AdukyyMor/logged.txt", concat(tbl3, "\n"))
+
+local function fn5(arg)
+	local str4 = tostring(arg or "src"):gsub("[^%w%._%-]", "_")
+	local str5
+
+	if #str4 > 40 then
+		str5 = str4:sub(1, 40)
+	else
+		str5 = str4
+	end
+
+-- https://discord.gg/AwGHNh7Z7T
+	return str5
+end
+
+local n = 0
+
+local function fn6(arg, arg2, arg3)
+	if type(arg2) ~= "string" or #arg2 < 8 then
+		return nil
+	end
+	n += 1
+	local str4 = string.format("AdukyyMor/sources/%04d_%s.lua", n, fn5(arg))
+	local concat2 = table.concat
+	local tbl4 = {}
+	local str5 = "-- dumped by AdukyyMor v" .. str
+	local str6 = "-- tag: " .. tostring(arg)
+	local str7 = "-- bytes: " .. tostring(#arg2)
+	local str8 = "-- extra: " .. tostring(arg3 or "")
+	tbl4[1] = str5
+	tbl4[2] = str6
+	tbl4[3] = str7
+	tbl4[4] = str8
+	tbl4[5] = ""
+	fn3(str4, concat2(tbl4, "\n") .. arg2)
+	fn4("AdukyyMor/logged.txt", "[SOURCE DUMP] " .. str4 .. " (" .. #arg2 .. " bytes)\n")
+	return str4
+end
+
+local function fn7(arg, arg2)
+	if type(arg2) ~= "string" or #arg2 < 1 then
+		return
+	end
+	n += 1
+	local str4 = string.format("AdukyyMor/sources/%04d_%s.txt", n, fn5(arg))
+	fn3(str4, arg2)
+	fn4("AdukyyMor/logged.txt", "[DATA DUMP] " .. str4 .. " (" .. #arg2 .. " bytes)\n")
+end
+
+local tbl4 = {}
+
+if tbl.loadstring and tbl.clonefunction and tbl.hookfunction then
+	local v = clonefunction(loadstring)
+
+	pcall(function()
+		hookfunction(loadstring, function(arg, arg2)
+			if type(arg) == "string" and #arg > 0 then
+				fn7("loadstring", arg)
+				fn6("loadstring", arg, arg2)
+				warn("[AdukyyMor] loadstring hooked - " .. tostring(#arg) .. " bytes")
+			end
+
+			return v(arg, arg2)
+		end)
+	end)
+end
+
+if tbl.load and tbl.clonefunction then
+	local v = clonefunction(load)
+
+	pcall(function()
+		if hookfunction then
+			hookfunction(load, function(arg, ...)
+				if type(arg) == "string" and #arg > 20 then
+					fn7("load", arg)
+					fn6("load", arg, nil)
+				end
+
+				return v(arg, ...)
+			end)
+		end
+	end)
+end
+
+if tbl.getrawmetatable and tbl.setreadonly and tbl.game then
+	pcall(function()
+		setreadonly(getrawmetatable(game), false)
+	end)
+end
+
+print("")
+print("=== AdukyyMor On Top ===")
+print("")
+fn("By Ameyal (y9v8 in discord)", "READY")
+
+if tbl.game then
+	game.DescendantRemoving:Connect(function(descendant)
+		tbl4[descendant] = nil
+	end)
+end
+
+return {
+	version = str,
+	capabilities = tbl,
+	storage = tbl2,
+	debug = flag,
+	get_logs = function()
+		return tbl2.memory
+	end,
+}
+
+-- https://discord.gg/AwGHNh7Z7T
